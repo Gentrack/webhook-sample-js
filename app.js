@@ -2,8 +2,6 @@ const bodyParser = require("body-parser");
 const crypto = require("crypto");
 const express = require("express");
 
-// get your application's public key from the developer portal
-const publicKey = process.env.PUBLIC_KEY;
 const port = process.env.PORT || 3001;
 
 /*
@@ -11,7 +9,7 @@ A signature contains a time stamp and a hash value, in this format:
 t=1504742008,v=dVLlVxcw1O/7m4GxeeaxyBxsj9AJpTeSmrdCywD2VsvIxRsB7AqBS9MNscuMYCuXs2/0TUnXgkzVPvWGQw73Jg==
 The hash is computed as: hash = HMAC512(timestamp + "." + payload) 
 */
-const verifySignature = (signature, key, payload) => {
+const verifySignature = (signature, publicKey, payload) => {
 	if (!signature) {
         throw new Error("Empty signature");
     }
@@ -44,7 +42,9 @@ const verifySignature = (signature, key, payload) => {
 };
 const verifyCallback = (req, res, buf, encoding) => {
     const signature = req.headers["x-payload-signature"];
-    verifySignature(signature, authToken, buf.toString());
+    // get your application's public key from the developer portal
+    const publicKey = process.env.PUBLIC_KEY;
+    verifySignature(signature, publicKey, buf.toString());
 };
 const app = express();
 app.use(bodyParser.json({

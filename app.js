@@ -10,7 +10,7 @@ t=1504742008,v=dVLlVxcw1O/7m4GxeeaxyBxsj9AJpTeSmrdCywD2VsvIxRsB7AqBS9MNscuMYCuXs
 The hash is computed as: hash = HMAC512(timestamp + "." + payload) 
 */
 const verifySignature = (signature, publicKey, payload) => {
-	if (!signature) {
+    if (!signature) {
         throw new Error("Empty signature");
     }
     const parts = signature.split(",");

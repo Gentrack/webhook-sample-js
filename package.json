@@ -1,0 +1,16 @@
+{
+  "name": "webhook-sample-js",
+  "version": "1.0.0",
+  "description": "A sample implementation of webhook for the Gentrack Platform",
+  "main": "app.js",
+  "repository": "git@github.com:Gentrack/webhook-sample-js.git",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Gentrack Ltd",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3"
+  }
+}

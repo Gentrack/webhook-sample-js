@@ -5,9 +5,15 @@ const express = require("express");
 const port = process.env.PORT || 3001;
 
 /*
-A signature contains a time stamp and a hash value, in this format:
+A signature contains a time stamp and a payload signature, in this format:
 t=1504742008,v=dVLlVxcw1O/7m4GxeeaxyBxsj9AJpTeSmrdCywD2VsvIxRsB7AqBS9MNscuMYCuXs2/0TUnXgkzVPvWGQw73Jg==
-The hash is computed as: hash = HMAC512(timestamp + "." + payload) 
+The timestamp is the Unix time of the moment when the signature is created.
+The signature is a private key signature of the SHA512 hash of the concatenation of the timestamp, a dot and the payload data.
+The signature itself is Base64 encoded.
+
+To verify a signature, we need:
+- Obtain the public key for the application from the Developer Portal.
+- Use the public key to verify the SHA512 hash of "timestamp + "." + payload". 
 */
 const verifySignature = (signature, publicKey, payload) => {
     if (!signature) {
@@ -30,14 +36,13 @@ const verifySignature = (signature, publicKey, payload) => {
     if (t * 1000 >= now) {
         throw new Error("Timestamp validation error");
     }
-
     const verifier = crypto.createVerify("sha512")
+    verifier.update(t + ".");
     verifier.update(payload)
     const sigToVerify = digest.substr(2)
-    if (!verifier.verify(publicKey, sigToVerify)) {
+    if (!verifier.verify(publicKey, sigToVerify, "base64")) {
         throw new Error("Invalid signature");
     }
-
     return true;
 };
 const verifyCallback = (req, res, buf, encoding) => {
@@ -45,32 +50,15 @@ const verifyCallback = (req, res, buf, encoding) => {
     // get your application's public key from the developer portal
     const publicKey = process.env.PUBLIC_KEY;
     verifySignature(signature, publicKey, buf.toString());
+    console.log("Webhook signature verified");
 };
 const app = express();
 app.use(bodyParser.json({
-    verifyCallback,
+    verify: verifyCallback,
 }));
 app.post("/webhook", (req, res) => {
+    // req.body contains an event JSON payload
     console.log(req.body);
-/* 	
-	req.body is a JSON object containing BillReady event data, e.g., 
-	{
-	  "billID": "123455",
-	  "accountID": "466",
-	  "accountName": "gateway-user",
-	  "lastDate": "2017-08-24",
-	  "lastBalance": 100,
-	  "payments": 88,
-	  "credits": 0,
-	  "charges": 0,
-	  "balance": 122,
-	  "balanceDate": "2017-08-24",
-	  "overdueAmount": 120,
-	  "dueAmount": 0,
-	  "dueDate": "2017-08-24",
-	  "currency": "NZD"
-	}
-*/
     res.sendStatus(200);
 });
 app.listen(port, () => {

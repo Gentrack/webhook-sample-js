@@ -10,10 +10,12 @@ cd ~/webhook-app
 ```
 npm install
 ```
-## Save the public key for an application
+## Import the public key for an application
+Every Gentrack Platform event payload is signed using a private key assigned to an application. The webhook can use the application's public key to validate the signature, to verify the signer and the signed payload content.
 
-The public key for an application can be found on the `Basic Information` page under `App Settings`.
-Save the key to a file called `pubkey.pem` in the current directory.
+The public key for an application can be found on the `Basic Information` page under `App Settings` for the application from the developer portal.
+* Import the key by passing an environment variable `PUBLIC_KEY` to the webhook, or 
+* Save the key to a file by the name of `pubkey.pem` in the current directory. 
 
 ## Start a development server:
 ```

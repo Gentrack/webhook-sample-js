@@ -4,14 +4,15 @@ const express = require("express");
 const fs=require("fs");
 const port = process.env.PORT || 3001;
 
-// Get the public key for the application from the developer portal and save it to pubkey.pem
-let publicKey = null;
-try {
-    publicKey = String(fs.readFileSync("pubkey.pem"));
-} catch(e) {
-    console.error("Failed to load public key " + e)
-    console.info("Copy the public key for your application from the developer portal and save to pubkey.pem");
-    process.exit(1);
+let publicKey = process.env.PUBLIC_KEY;
+if(publicKey == null) {
+    try {
+        publicKey = String(fs.readFileSync("pubkey.pem"));
+    } catch(e) {
+        console.error("Failed to load public key: " + e)
+        console.info("Must provide a public key to verify payload signature.")
+        process.exit(1);
+    }
 }
 /*
 A signature contains a time stamp and a payload signature, in this format:

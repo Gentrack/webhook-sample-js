@@ -1,9 +1,19 @@
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
 const express = require("express");
-
+const fs=require("fs");
 const port = process.env.PORT || 3001;
 
+let publicKey = process.env.PUBLIC_KEY;
+if(publicKey == null) {
+    try {
+        publicKey = String(fs.readFileSync("pubkey.pem"));
+    } catch(e) {
+        console.error("Failed to load public key: " + e)
+        console.info("Must provide a public key to verify payload signature.")
+        process.exit(1);
+    }
+}
 /*
 A signature contains a time stamp and a payload signature, in this format:
 t=1504742008,v=dVLlVxcw1O/7m4GxeeaxyBxsj9AJpTeSmrdCywD2VsvIxRsB7AqBS9MNscuMYCuXs2/0TUnXgkzVPvWGQw73Jg==
@@ -15,6 +25,7 @@ To verify a signature, we need:
 - Obtain the public key for the application from the Developer Portal.
 - Use the public key to verify the SHA512 hash of "timestamp + "." + payload". 
 */
+
 const verifySignature = (signature, publicKey, payload) => {
     if (!signature) {
         throw new Error("Empty signature");
@@ -47,8 +58,6 @@ const verifySignature = (signature, publicKey, payload) => {
 };
 const verifyCallback = (req, res, buf, encoding) => {
     const signature = req.headers["x-payload-signature"];
-    // get your application's public key from the developer portal
-    const publicKey = process.env.PUBLIC_KEY;
     verifySignature(signature, publicKey, buf.toString());
     console.log("Webhook signature verified");
 };

@@ -6,7 +6,7 @@ git clone git@github.com:Gentrack/webhook-sample-js.git ~/webhook-app
 cd ~/webhook-app
 
 ```
-## Install page dependency:
+## Install package dependency:
 ```
 npm install
 ```
